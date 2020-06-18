@@ -166,15 +166,15 @@ namespace AssenStelsel
             gridAxisPath.Stroke = Brushes.Red;
             gridAxisPath.StrokeThickness = 2;
 
-            for (int i = Convert.ToInt32(offset.X % raster); i < canvasWidth; i+=raster)
+            for (int v = Convert.ToInt32(offset.X % raster); v < canvasWidth; v+=raster)
             {
                 LineGeometry verticalLine = new LineGeometry();
-                verticalLine.StartPoint = new Point(i, 0);
-                verticalLine.EndPoint = new Point(i, canvasHeight);
+                verticalLine.StartPoint = new Point(v, 0);
+                verticalLine.EndPoint = new Point(v, canvasHeight);
 
-                if ((i - offsetUnit.X) % (raster * unit) == 0)
+                if ((v - offsetUnit.X) % (raster * unit) == 0)
                 {
-                    if (i == Convert.ToInt32(pt.X))
+                    if (v == Convert.ToInt32(pt.X))
                         gridAxisGeom.AddGeometry(verticalLine);
                     else
                         gridUnitGeom.AddGeometry(verticalLine);
@@ -182,6 +182,24 @@ namespace AssenStelsel
                 else
                     gridSubGeom.AddGeometry(verticalLine);
             }
+
+            for (int h = Convert.ToInt32(offset.Y % raster); h < canvasHeight; h += raster)
+            {
+                LineGeometry horizontalLine = new LineGeometry();
+                horizontalLine.StartPoint = new Point(0, h);
+                horizontalLine.EndPoint = new Point(canvasWidth, h);
+
+                if ((h - offsetUnit.Y) % (raster * unit) == 0)
+                {
+                    if (h == Convert.ToInt32(pt.Y))
+                        gridAxisGeom.AddGeometry(horizontalLine);
+                    else
+                        gridUnitGeom.AddGeometry(horizontalLine);
+                }
+                else
+                    gridSubGeom.AddGeometry(horizontalLine);
+            }
+
 
             //Transform = new TranslateTransform(new Point((canvasWidth/2) offset.X,offset.Y);
 
