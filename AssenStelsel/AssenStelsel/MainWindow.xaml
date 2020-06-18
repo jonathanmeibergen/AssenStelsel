@@ -7,36 +7,17 @@
         mc:Ignorable="d"
         Title="Assen Stelsel" Height="450" Width="800" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
     <Grid Width="780" Height="420">
-        <Canvas x:Name="mainCanvas" Margin="10,90,10,10" Background="{DynamicResource {x:Static SystemColors.MenuBrushKey}}"/>
+        <Canvas x:Name="mainCanvas" ClipToBounds="True" Margin="10,90,10,10" Background="{DynamicResource {x:Static SystemColors.MenuBrushKey}}"/>
         <!--sample code for PathGeometry-->
-        <Path Stroke="Black" StrokeThickness="1" Visibility="Hidden">
-            <Path.Data>
-                <PathGeometry>
-                    <PathGeometry.Figures>
-                        <PathFigureCollection>
-                            <PathFigure IsClosed="True" StartPoint="10,100">
-                                <PathFigure.Segments>
-                                    <PathSegmentCollection>
-                                        <LineSegment Point="100,100" />
-                                        <LineSegment Point="100,50" />
-                                    </PathSegmentCollection>
-                                </PathFigure.Segments>
-                            </PathFigure>
 
-                        </PathFigureCollection>
-                    </PathGeometry.Figures>
-                </PathGeometry>
-            </Path.Data>
-        </Path>
-
-        <GroupBox Header="Wiskundige Coördinaten" HorizontalAlignment="Left" Height="75" Margin="10,10,0,0" VerticalAlignment="Top" Width="166">
+        <GroupBox Header="Wiskundige Coördinaten" HorizontalAlignment="Left" Height="75" Margin="10,10,0,0" VerticalAlignment="Top" Width="150">
             <StackPanel>
                 <Label x:Name="lbWCX" Content="..." HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="60"/>
                 <Label x:Name="lbWCY" Content="..." HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="60"/>
             </StackPanel>
         </GroupBox>
 
-        <GroupBox Header="Middelpunt" HorizontalAlignment="Left" Height="75" Margin="180,10,0,0" VerticalAlignment="Top" Width="166">
+        <GroupBox Header="Middelpunt" HorizontalAlignment="Left" Height="75" Margin="165,10,0,0" VerticalAlignment="Top" Width="150">
             <StackPanel>
                 <Label x:Name="lbMX" Content="..." HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="60"/>
                 <Label x:Name="lbMY" Content="..." HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="60"/>
@@ -44,12 +25,39 @@
         </GroupBox>
 
 
-        <GroupBox Header="Canvas Coördinaten" HorizontalAlignment="Left" Height="75" Margin="350,10,0,0" VerticalAlignment="Top" Width="166">
+        <GroupBox Header="Canvas Coördinaten" HorizontalAlignment="Left" Height="75" Margin="320,10,0,0" VerticalAlignment="Top" Width="150">
             <StackPanel>
-            <Label x:Name="lbVCX" Content="..." HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="60"/>
-            <Label x:Name="lbVCY" Content="..." HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="60"/>
+                <Label x:Name="lbVCX" Content="..." HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="60"/>
+                <Label x:Name="lbVCY" Content="..." HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="60"/>
             </StackPanel>
         </GroupBox>
-
+        <GroupBox Header="Punt Opties" HorizontalAlignment="Left" Height="75" Margin="475,10,0,0" VerticalAlignment="Top" Width="296">
+            <Grid>
+                <Slider HorizontalAlignment="Left" Margin="70,5,0,0" VerticalAlignment="Top" Width="60"/>
+                <Slider HorizontalAlignment="Left" Margin="70,30,0,0" VerticalAlignment="Top" Width="60"/>
+                <ComboBox Name="cmbColorsStroke" Width="140" Height="22" Margin="135,3,9,27">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Rectangle Fill="{Binding Name}" Width="12" Height="12" Margin="0,2,5,2" />
+                                <TextBlock Text="{Binding Name}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <ComboBox x:Name="cmbColorsFill" Width="140" Height="22" Margin="135,28,9,2">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Rectangle Fill="{Binding Name}" Width="12" Height="12" Margin="0,2,5,2" />
+                                <TextBlock Text="{Binding Name}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Label Content="Vul Dikte" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,1,0,0"/>
+                <Label Content="Rand Dikte" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,26,0,0"/>
+            </Grid>
+        </GroupBox>
     </Grid>
 </Window>
