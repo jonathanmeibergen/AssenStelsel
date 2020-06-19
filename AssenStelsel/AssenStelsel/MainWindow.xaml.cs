@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -25,6 +26,10 @@ namespace AssenStelsel
         private int raster = 16;
         private int unit = 8;
 
+        private int selectedTool;
+
+        private List<Punt> Punten;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -42,7 +47,7 @@ namespace AssenStelsel
 
         }
 
-        private Path getUnitPathFromInt(int unit)
+        private Path getUnitPathFromInt(int unit, Point loc)
         {
             string unitString = unit.ToString();
             Geometry unitGeom;
@@ -60,7 +65,7 @@ namespace AssenStelsel
             formattedText.SetFontStyle(FontStyles.Normal);
 
             // Convert
-            unitGeom = formattedText.BuildGeometry(new Point(5, 5));
+            unitGeom = formattedText.BuildGeometry(loc);
 
             Path textPath = new Path();
             textPath.Fill = Brushes.Black;
@@ -69,83 +74,37 @@ namespace AssenStelsel
             return textPath;
         }
 
+
         private void MainCanvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
 
             Point pt = Mouse.GetPosition(mainCanvas);
-            PathGeometry axis = new PathGeometry();
-
-            LineGeometry xAxis = new LineGeometry();
-            xAxis.StartPoint = new Point(0, pt.Y);
-            xAxis.EndPoint = new Point(mainCanvas.ActualWidth, pt.Y);
-
-            LineGeometry yAxis = new LineGeometry();
-            yAxis.StartPoint = new Point(pt.X, 0);
-            yAxis.EndPoint = new Point(pt.X, mainCanvas.ActualHeight);
-
-            axis.AddGeometry(xAxis);
-            axis.AddGeometry(yAxis);
-
-            Path axisPath = new Path();
-            axisPath.Stroke = Brushes.Black;
-            axisPath.StrokeThickness = 1;
-            axisPath.Data = axis;
-
-            mainCanvas.Children.Clear();
-            //mainCanvas.Children.Add(axisPath);
-
-            drawLargeGrid(pt);
-
-            //mainCanvas.Children.Add(textPath);
-
-            //axis.Transform = new TranslateTransform(5, 60);
-
-            ptM = pt;
-        }
-
-        private void drawGrid(Point origin)
-        {
-            PathGeometry gridGeom = new PathGeometry();
-            Path gridPath = new Path();
-            gridPath.Stroke = Brushes.Black;
-            gridPath.StrokeThickness = 1;
             
 
-            int canvasWidth = Convert.ToInt32(mainCanvas.ActualWidth);
-            int canvasHeight = Convert.ToInt32(mainCanvas.ActualHeight);
-
-            //where to start drawing sub unit lines from left and top most position of the canvas
-            int offsetX = Convert.ToInt32(origin.X % raster);
-            int offsetY = Convert.ToInt32(origin.Y % raster);
-
-            //where to start drawing unit lines from left and top most position of the canvas
-            int offsetXUnit = Convert.ToInt32(origin.X % (raster * unit));
-            int offsetYUnit = Convert.ToInt32(origin.Y % (raster * unit));
-
-            int drawx = offsetX;
-            while (drawx < canvasWidth)
+            switch (selectedTool)
             {
-                LineGeometry verticalUnit = new LineGeometry();
-                //verticalUnit.StartPoint = new Point(0, pt.Y);
-                //verticalUnit.EndPoint = new Point(mainCanvas.ActualWidth, pt.Y);
-
-                drawx += raster;
+                case 1:
+                    mainCanvas.Children.Clear();
+                    drawLargeGrid(pt);
+                    ptM = pt;
+                    break;
+                case 2:
+                    drawPoint(pt);
+                    break;
+                default:
+                    break;
             }
-
-            //gridPath.Data = 
-
-            //LineGeometry yAxis = new LineGeometry();
-            //yAxis.StartPoint = new Point(pt.X, 0);
-            //yAxis.EndPoint = new Point(pt.X, mainCanvas.ActualHeight);
-
-            //axis.AddGeometry(xAxis);
-            //axis.AddGeometry(yAxis);
+            
         }
+
 
         private void drawLargeGrid(Point pt){
 
             Point offset = new Point(pt.X % raster, pt.Y % raster);
             Point offsetUnit = new Point(pt.X % (raster * unit), pt.Y % (raster * unit));
+            //calculate unit index
+            int xAxisUnitLabel = -1 * Convert.ToInt32(Math.Ceiling(pt.X / (raster * unit)));
+            int yAxisUnitLabel = Convert.ToInt32(Math.Ceiling(pt.Y / (raster * unit)));
 
             PathGeometry gridSubGeom  = new PathGeometry();
             PathGeometry gridUnitGeom = new PathGeometry();
@@ -178,6 +137,11 @@ namespace AssenStelsel
                         gridAxisGeom.AddGeometry(verticalLine);
                     else
                         gridUnitGeom.AddGeometry(verticalLine);
+
+                    // add x axis unit label
+                    xAxisUnitLabel += 1;
+                    mainCanvas.Children.Add(getUnitPathFromInt(xAxisUnitLabel * unit, 
+                                                                new Point(v + 5, pt.Y + 2)));
                 }
                 else
                     gridSubGeom.AddGeometry(verticalLine);
@@ -191,29 +155,65 @@ namespace AssenStelsel
 
                 if ((h - offsetUnit.Y) % (raster * unit) == 0)
                 {
+                    yAxisUnitLabel -= 1;
+
                     if (h == Convert.ToInt32(pt.Y))
                         gridAxisGeom.AddGeometry(horizontalLine);
                     else
+                    {
                         gridUnitGeom.AddGeometry(horizontalLine);
+                        // add y axis unit label
+                        mainCanvas.Children.Add(getUnitPathFromInt(yAxisUnitLabel * unit,
+                                                                new Point(pt.X + 5, h + 2)));
+                    }
                 }
                 else
                     gridSubGeom.AddGeometry(horizontalLine);
             }
 
-
-            //Transform = new TranslateTransform(new Point((canvasWidth/2) offset.X,offset.Y);
-
-            //gridSubGeom.Transform = offsetTransform;
             gridSubPath.Data  = gridSubGeom;
-
-            //gridUnitGeom.Transform = offsetTransform;
             gridUnitPath.Data = gridUnitGeom;
-
             gridAxisPath.Data = gridAxisGeom;
 
             mainCanvas.Children.Add(gridSubPath);
             mainCanvas.Children.Add(gridUnitPath);
             mainCanvas.Children.Add(gridAxisPath);
+
+        }
+
+        public void drawPoint(Point pt)
+        {
+            Punt punt = new Punt(mainCanvas);
+            Color color = (Color)(cmbColorsFill.SelectedItem as PropertyInfo).GetValue(null, null);
+            Color colorBorder = (Color)(cmbColorsStroke.SelectedItem as PropertyInfo).GetValue(null, null);
+
+            //StackPanel stpFill = cmbColorsFill;
+            //StackPanel stpStroke = cmbColorsStroke.SelectedItem as StackPanel;
+            //Brush rectFill = ((Rectangle)stpFill.FindName("StrokeFill")).Fill;
+            //Rectangle rectStroke = stpStroke.Children[0] as Rectangle;
+
+
+            punt.color = new SolidColorBrush(color);
+            punt.colorBorder = new SolidColorBrush(colorBorder);
+            punt.size = sldSize.Value;
+            punt.thicknessBorder = sldStrokeThickness.Value;
+            punt.ScreenX = pt.X;
+            punt.ScreenY = pt.Y;
+            //punt.DrawPunt();
+
+            // Create an Ellipse    
+            Ellipse ell = new Ellipse();
+            ell.Height = sldSize.Value*2;
+            ell.Width = sldSize.Value*2;
+            // Create a blue and a black Brush    
+            // Set Ellipse's width and color    
+            ell.StrokeThickness = sldStrokeThickness.Value;
+            ell.Stroke = punt.colorBorder;
+            // Fill rectangle with blue color    
+            ell.Fill = punt.color;
+            ell.RenderTransform = new TranslateTransform(pt.X, pt.Y);
+            // Add Ellipse to the Grid.    
+            mainCanvas.Children.Add(ell);
 
         }
 
@@ -240,5 +240,14 @@ namespace AssenStelsel
 
         }
 
+        private void Punt_Click(object sender, RoutedEventArgs e)
+        {
+            selectedTool = 2;
+        }
+
+        private void Grid_Click(object sender, RoutedEventArgs e)
+        {
+            selectedTool = 1;
+        }
     }
 }
