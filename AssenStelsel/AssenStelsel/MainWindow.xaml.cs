@@ -222,12 +222,20 @@ namespace AssenStelsel
             xn = pt.X - ptM.X;
             yn = pt.Y - ptM.Y;
 
+            //output cartesian coordinates
             lbMX.Content = "x: " + xn;
             lbMY.Content = "y: " + yn;
 
-            //output cartesian coordinates
-            lbWCX.Content = "x: " + xn;
-            lbWCY.Content = "y: " + -1 * yn;
+            //output cartesian coordinates in raster
+            if(xn < 0)
+                lbWCX.Content = "x: " + Math.Floor(xn / raster);
+            else
+                lbWCX.Content = "x: " + Math.Ceiling(xn / raster);
+
+            if(yn < 0)
+                lbWCY.Content = "y: " + Math.Ceiling(-1 * yn / raster);
+            else
+                lbWCY.Content = "y: " + Math.Floor(-1 * yn / raster);
         }
 
         private void Punt_Click(object sender, RoutedEventArgs e)
