@@ -9,7 +9,7 @@
     <Grid Width="780" Height="420">
 
         
-        <Canvas x:Name="mainCanvas" ClipToBounds="True" Margin="0,85,20,15" Background="{DynamicResource {x:Static SystemColors.MenuBrushKey}}">
+        <Canvas x:Name="mainCanvas" ClipToBounds="True" Margin="5,85,5,5" Width="770" Height="327" Background="{DynamicResource {x:Static SystemColors.MenuBrushKey}}">
             
         </Canvas>
         <!--sample code for PathGeometry-->
@@ -39,7 +39,7 @@
             <Grid>
                 <Slider x:Name="sldSize" HorizontalAlignment="Left" Margin="70,5,0,0" VerticalAlignment="Top" Width="60" Minimum="1" SmallChange="1"/>
                 <Slider x:Name="sldStrokeThickness" HorizontalAlignment="Left" Margin="70,30,0,0" VerticalAlignment="Top" Width="60" Minimum="1" SmallChange="1"/>
-                <ComboBox Name="cmbColorsStroke" Width="140" Height="22" Margin="135,3,9,27">
+                <ComboBox Name="cmbColorsFill" Width="140" Height="22" Margin="135,3,9,27">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
@@ -49,7 +49,7 @@
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-                <ComboBox x:Name="cmbColorsFill" Width="140" Height="22" Margin="135,28,9,2">
+                <ComboBox x:Name="cmbColorsStroke" Width="140" Height="22" Margin="135,28,9,2">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">

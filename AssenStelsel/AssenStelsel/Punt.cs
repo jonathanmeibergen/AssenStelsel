@@ -49,13 +49,14 @@ namespace AssenStelsel
         public void DrawPunt()
         {
             Ellipse ell         = new Ellipse();
-            ell.Width = ell.Height = size;
+            ell.Width = ell.Height = size * 3;
             ell.Stroke          = colorBorder;
             ell.StrokeThickness = thicknessBorder;
             ell.Fill            = color;
-            ell.Margin = new Thickness(10,10,10,10);
+            ell.RenderTransform = new TranslateTransform(ScreenX - (ell.Width / 2), ScreenY - (ell.Height / 2));
             //ell.LayoutTransform = new TranslateTransform(ScreenX, ScreenY);
             cnv.Children.Add(ell);
+
         }
 
     }

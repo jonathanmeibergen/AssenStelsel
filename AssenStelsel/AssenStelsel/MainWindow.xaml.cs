@@ -23,12 +23,13 @@ namespace AssenStelsel
     public partial class MainWindow : Window
     {
         private Point ptM;
-        private int raster = 16;
-        private int unit = 8;
+        private Point ptD;
+        private int raster = 10;
+        private int unit = 10;
 
-        private int selectedTool;
+        private int selectedTool = 1;
 
-        private List<Punt> Punten;
+        private List<Punt> Punten = new List<Punt>();
 
         public MainWindow()
         {
@@ -37,13 +38,17 @@ namespace AssenStelsel
             this.MouseMove += MainWindow_MouseMove;
 
             cmbColorsStroke.ItemsSource = typeof(Colors).GetProperties();
-            cmbColorsStroke.SelectedIndex = 1;
+            cmbColorsStroke.SelectedIndex = 7;
             cmbColorsFill.ItemsSource = typeof(Colors).GetProperties();
-            cmbColorsFill.SelectedIndex = 1;
+            cmbColorsFill.SelectedIndex = 113;
+            sldSize.Value = 5;
+            sldStrokeThickness.Value = 2;
 
             mainCanvas.MouseDown += MainCanvas_MouseDown;
 
-            ptM = new Point(0, 0);
+            ptM = new Point(mainCanvas.Width/2, mainCanvas.Height/2);
+
+            drawLargeGrid(ptM);
 
         }
 
@@ -74,18 +79,16 @@ namespace AssenStelsel
             return textPath;
         }
 
-
         private void MainCanvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
-
             Point pt = Mouse.GetPosition(mainCanvas);
-            
 
             switch (selectedTool)
             {
                 case 1:
                     mainCanvas.Children.Clear();
                     drawLargeGrid(pt);
+                    drawPunten(new Point(pt.X - ptM.X, pt.Y - ptM.Y));
                     ptM = pt;
                     break;
                 case 2:
@@ -94,9 +97,17 @@ namespace AssenStelsel
                 default:
                     break;
             }
-            
         }
 
+        private void drawPunten(Point pt)
+        {
+            foreach (Punt item in Punten)
+            {
+                item.ScreenX += pt.X;
+                item.ScreenY += pt.Y;
+                item.DrawPunt();
+            }
+        }
 
         private void drawLargeGrid(Point pt){
 
@@ -113,8 +124,8 @@ namespace AssenStelsel
             Path         gridUnitPath = new Path();
             Path         gridAxisPath = new Path();
 
-            int canvasWidth  = Convert.ToInt32(mainCanvas.ActualWidth);
-            int canvasHeight = Convert.ToInt32(mainCanvas.ActualHeight);
+            int canvasWidth  = Convert.ToInt32(mainCanvas.Width);
+            int canvasHeight = Convert.ToInt32(mainCanvas.Height);
 
             gridSubPath.Stroke          = Brushes.Gray;
             gridSubPath.StrokeThickness = 0.1;
@@ -125,7 +136,7 @@ namespace AssenStelsel
             gridAxisPath.Stroke = Brushes.Red;
             gridAxisPath.StrokeThickness = 2;
 
-            for (int v = Convert.ToInt32(offset.X % raster); v < canvasWidth; v+=raster)
+            for (double v = offset.X % raster; v < canvasWidth; v += raster)
             {
                 LineGeometry verticalLine = new LineGeometry();
                 verticalLine.StartPoint = new Point(v, 0);
@@ -147,11 +158,13 @@ namespace AssenStelsel
                     gridSubGeom.AddGeometry(verticalLine);
             }
 
-            for (int h = Convert.ToInt32(offset.Y % raster); h < canvasHeight; h += raster)
+            for (double h = offset.Y % raster; h < canvasHeight; h += raster)
             {
                 LineGeometry horizontalLine = new LineGeometry();
                 horizontalLine.StartPoint = new Point(0, h);
                 horizontalLine.EndPoint = new Point(canvasWidth, h);
+
+                Console.WriteLine((h - offsetUnit.Y) % (raster * unit));
 
                 if ((h - offsetUnit.Y) % (raster * unit) == 0)
                 {
@@ -184,14 +197,9 @@ namespace AssenStelsel
         public void drawPoint(Point pt)
         {
             Punt punt = new Punt(mainCanvas);
+            Punten.Add(punt);
             Color color = (Color)(cmbColorsFill.SelectedItem as PropertyInfo).GetValue(null, null);
             Color colorBorder = (Color)(cmbColorsStroke.SelectedItem as PropertyInfo).GetValue(null, null);
-
-            //StackPanel stpFill = cmbColorsFill;
-            //StackPanel stpStroke = cmbColorsStroke.SelectedItem as StackPanel;
-            //Brush rectFill = ((Rectangle)stpFill.FindName("StrokeFill")).Fill;
-            //Rectangle rectStroke = stpStroke.Children[0] as Rectangle;
-
 
             punt.color = new SolidColorBrush(color);
             punt.colorBorder = new SolidColorBrush(colorBorder);
@@ -199,30 +207,13 @@ namespace AssenStelsel
             punt.thicknessBorder = sldStrokeThickness.Value;
             punt.ScreenX = pt.X;
             punt.ScreenY = pt.Y;
-            //punt.DrawPunt();
-
-            // Create an Ellipse    
-            Ellipse ell = new Ellipse();
-            ell.Height = sldSize.Value*2;
-            ell.Width = sldSize.Value*2;
-            // Create a blue and a black Brush    
-            // Set Ellipse's width and color    
-            ell.StrokeThickness = sldStrokeThickness.Value;
-            ell.Stroke = punt.colorBorder;
-            // Fill rectangle with blue color    
-            ell.Fill = punt.color;
-            ell.RenderTransform = new TranslateTransform(pt.X, pt.Y);
-            // Add Ellipse to the Grid.    
-            mainCanvas.Children.Add(ell);
-
+            punt.DrawPunt();
         }
 
         private void MainWindow_MouseMove(object sender, MouseEventArgs e)
         {
             Point pt = Mouse.GetPosition(mainCanvas);
             double xn, yn;
-            
-
 
             lbVCX.Content = "x: " + pt.X;
             lbVCY.Content = "y: " + pt.Y;
@@ -237,7 +228,6 @@ namespace AssenStelsel
             //output cartesian coordinates
             lbWCX.Content = "x: " + xn;
             lbWCY.Content = "y: " + -1 * yn;
-
         }
 
         private void Punt_Click(object sender, RoutedEventArgs e)
